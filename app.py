@@ -28,4 +28,4 @@ if st.button("Generate", key="sdxl_generate") and prompt:
         else:
             st.error(f"Error: {response.text}")
 
-st.caption("Powered by Hugging Face Stable Diffusion XL")
+st.caption("")
