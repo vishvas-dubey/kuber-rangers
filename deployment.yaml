@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: mydep1
+  name: mydep1
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: mydep1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: mydep1
+    spec:
+      containers:
+      - image: twin-towers
+        name: twin-towers
+        resources: {}
+status: {}
+~           
