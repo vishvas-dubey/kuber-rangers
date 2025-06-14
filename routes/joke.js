@@ -14,6 +14,7 @@ jokeRoute.get("/random", async (req, res) => {
     try {
         const joke = oneliner.getRandomJoke();
         const jokeText = joke.body;
+
         const params = {
             Bucket: process.env.S3_BUCKET_NAME,
             Key: `jokes/joke-${Date.now()}.txt`, // e.g., jokes/joke-1718349271918.txt
