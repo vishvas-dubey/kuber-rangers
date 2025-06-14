@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fun API Tester</title>
+  <style>
+    :root {
+      --orange: #ff7a00;
+      --orange-dark: #e66900;
+      --black: #222;
+      --gray-light: #f7f7f7;
+      --gray-border: #ddd;
+    }
+
+    .input {
+      width: 90%
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: white;
+      color: var(--black);
+      padding: 30px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--orange-dark);
+      margin-bottom: 50px;
+      font-size: 2.5rem;
+    }
+
+    h2 {
+      color: var(--orange);
+      font-size: 1.6rem;
+      margin-bottom: 15px;
+    }
+
+    .section {
+      background-color: var(--gray-light);
+      border: 1px solid var(--gray-border);
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 40px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .section:hover {
+      box-shadow: 0 4px 14px rgba(255, 122, 0, 0.1);
+    }
+
+    button {
+      padding: 12px 24px;
+      margin: 10px 0;
+      cursor: pointer;
+      background-color: var(--orange);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background-color: var(--orange-dark);
+      transform: scale(1.03);
+    }
+
+    textarea, input {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0 20px;
+      border-radius: 6px;
+      border: 1px solid var(--gray-border);
+      background-color: white;
+      color: var(--black);
+      font-size: 16px;
+    }
+
+    textarea::placeholder, input::placeholder {
+      color: #aaa;
+    }
+
+    pre {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      border-left: 4px solid var(--orange);
+      border: 1px solid var(--gray-border);
+      color: var(--black);
+    }
+
+    img {
+      max-width: 100%;
+      margin-top: 15px;
+      border-radius: 10px;
+      border: 2px solid var(--orange);
+      box-shadow: 0 0 12px rgba(255,122,0,0.1);
+    }
+
+    a {
+      color: var(--orange-dark);
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    a:hover {
+      color: var(--black);
+    }
+
+    .output {
+      margin-top: 10px;
+    }
+
+    hr {
+      border: none;
+      height: 1px;
+      background-color: var(--gray-border);
+      margin: 40px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎉 Fun API Tester Dashboard</h1>
+
+  <div class="section">
+    <h2>🎭 Shakespeare Translator</h2>
+    <textarea class="input" id="shakespeareInput" rows="4" placeholder="Enter text to translate..."></textarea>
+    <button onclick="generateShakespeare()">Translate & Upload</button>
+    <div id="shakespeareOutput" class="output"></div>
+  </div>
+
+  <div class="section">
+    <h2>😂 Random Joke Generator</h2>
+    <button onclick="getJoke()">Get Joke & Upload</button>
+    <div id="jokeOutput" class="output"></div>
+  </div>
+
+  <div class="section">
+    <h2>🖼️ Text to Image Generator</h2>
+    <input class="input" id="imagePrompt" type="text" placeholder="Describe your image prompt here...">
+    <button onclick="generateImage()">Generate Image</button>
+    <div id="imageOutput" class="output"></div>
+  </div>
+
+  <script>
+    // 🎭 Shakespeare Translator
+    async function generateShakespeare() {
+      const text = document.getElementById("shakespeareInput").value;
+      const output = document.getElementById("shakespeareOutput");
+      output.innerHTML = "⏳ Translating...";
+
+      try {
+        const res = await fetch("http://34.28.141.180:8080/function/joke-generator/api/shakesphere/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text })
+        });
+
+
+        const data = await res.json();
+        if (data.success) {
+        console.log(data)
+          output.innerHTML = `
+            <pre>${data.data}</pre>
+            
+          `;
+        } else {
+          output.textContent = data.message;
+        }
+      } catch (err) {
+        output.textContent = "❌ Error: " + err.message;
+      }
+    }
+
+    // 😂 Joke Generator
+    async function getJoke() {
+      const output = document.getElementById("jokeOutput");
+      output.innerHTML = "⏳ Fetching joke...";
+
+      try {
+        const res = await fetch("http://34.28.141.180:8080/function/joke-generator/api/joke/random");
+        const data = await res.json();
+
+        if (data.success) {
+          output.innerHTML = `
+            <pre>${data.data.body}</pre>
+            <p>✅ Joke uploaded to S3 (check backend logs)</p>
+          `;
+        } else {
+          output.textContent = data.message;
+        }
+      } catch (err) {
+        output.textContent = "❌ Error: " + err.message;
+      }
+    }
+
+    // 🖼️ Image Generator
+    async function generateImage() {
+      const prompt = document.getElementById("imagePrompt").value;
+      const output = document.getElementById("imageOutput");
+      output.innerHTML = "⏳ Generating image...";
+
+      try {
+        const res = await fetch("https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer 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",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ inputs: prompt })
+        });
+
+        if (!res.ok) throw new Error(await res.text());
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        output.innerHTML = `<img src="${url}" alt="Generated Image"/><p><strong>Prompt:</strong> ${prompt}</p>`;
+      } catch (err) {
+        output.textContent = "❌ Error: " + err.message;
+      }
+    }
+  </script>
+
+</body>
+</html>
