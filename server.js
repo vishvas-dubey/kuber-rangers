@@ -7,9 +7,11 @@ app.use(express.json());
 
 const jokeRoute = require('./routes/joke');
 const shakespeareRoute = require('./routes/shakesphere');
+const router = require('./routes/image');
 
 app.use('/api/joke', jokeRoute);
 app.use('/api/shakesphere', shakespeareRoute);
+app.use('/api', router);
 
 app.get('/', (req, res) => {
   res.send('🎭 Welcome to Initial Route');
